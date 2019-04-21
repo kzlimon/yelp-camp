@@ -37,7 +37,8 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 app.set("view engine", "ejs");
-
+// custom stylesheets connected
+app.use(express.static(__dirname + "/public"));
 // every time we run this server it will remove the campgrounds
 seedDB();
 // route for homepage
