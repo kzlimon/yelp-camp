@@ -1,21 +1,21 @@
 var express = require("express"),
     app = express(),
     bodyParser = require("body-parser"),
-    mongoose = require("mongoose");
+    mongoose = require("mongoose"),
+    Campground = require("./models/campground"),
+    Comment = require("./models/comment"),
+    seedDB = require("./seeds");
+
+
+
 
 // connecting mongoose and create a db
 mongoose.connect('mongodb://localhost:27017/yelp_camp', {
     useNewUrlParser: true
 });
 
-// db schema setup
-var campgroundScheme = new mongoose.Schema({
-    name: String,
-    image: String,
-    description: String
-});
-// db model
-var Campground = mongoose.model("Campground", campgroundScheme);
+// db SCHEMA setup
+
 
 // add a campground to db manually - depricated
 // Campground.create({
@@ -38,6 +38,8 @@ app.use(bodyParser.urlencoded({
 }));
 app.set("view engine", "ejs");
 
+// every time we run this server it will remove the campgrounds
+seedDB();
 // route for homepage
 app.get("/", function (req, res) {
     res.render("landing");
@@ -50,7 +52,7 @@ app.get("/campgrounds", function (req, res) {
         if (err) {
             console.log(err);
         } else {
-            res.render("index", {
+            res.render("campgrounds/index", {
                 campgrounds: allCampgrounds
             });
         }
@@ -83,24 +85,63 @@ app.post("/campgrounds", function (req, res) {
 
 // NEW -  campground add page
 app.get("/campgrounds/new", function (req, res) {
-    res.render("new.ejs");
+    res.render("campgrounds/new");
 });
 
 // SHOW - more info about one campground
 // this should be gone at the last of the routes
 app.get("/campgrounds/:id", function (req, res) {
-    // find the campgroubnd with provided id
-    Campground.findById(req.params.id, function (err, foundCampground) {
+    // find the campground with provided id
+    Campground.findById(req.params.id).populate("comments").exec(function (err, foundCampground) {
         if (err) {
             console.log(err);
         } else {
+            console.log(foundCampground);
             // render show template with that campground
-            res.render("show", {
+            res.render("campgrounds/show", {
                 campground: foundCampground
             });
         }
     });
 });
+
+
+// ========= COMMENTS - ROUTES ================
+
+app.get("/campgrounds/:id/comments/new", function (req, res) {
+    //finmd campground by id
+    Campground.findById(req.params.id, function (err, campground) {
+        if (err) {
+            console.log(err);
+        } else {
+            res.render("comments/new", {
+                campground: campground
+            });
+        }
+    });
+});
+
+// post comments to the campgrounds
+app.post("/campgrounds/:id/comments", function (req, res) {
+    //lookup campground using ID
+    Campground.findById(req.params.id, function (err, campground) {
+        if (err) {
+            console.log(err);
+            res.redirect("/campgrounds");
+        } else {
+            Comment.create(req.body.comment, function (err, comment) {
+                if (err) {
+                    console.log(err);
+                } else {
+                    campground.comments.push(comment);
+                    campground.save();
+                    res.redirect('/campgrounds/' + campground._id);
+                }
+            });
+        }
+    });
+});
+
 
 
 // server port set
