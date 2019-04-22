@@ -2,6 +2,7 @@ var express = require("express"),
     app = express(),
     bodyParser = require("body-parser"),
     mongoose = require("mongoose"),
+    flash = require("connect-flash"),
     passport = require("passport"),
     LocalStrategy = require("passport-local"),
     methodOverride = require("method-override"),
@@ -47,6 +48,8 @@ app.set("view engine", "ejs");
 // custom stylesheets connected
 app.use(express.static(__dirname + "/public"));
 app.use(methodOverride("_method"));
+// connect flash messages
+app.use(flash());
 // every time we run this server it will remove the campgrounds
 // seed the database
 // seedDB();
@@ -66,6 +69,8 @@ passport.deserializeUser(User.deserializeUser());
 // set 'currentUser: req.user' for every routes - login menu item hide/show
 app.use(function (req, res, next) {
     res.locals.currentUser = req.user;
+    res.locals.error = req.flash("error");
+    res.locals.success = req.flash("success");
     next();
 });
 
