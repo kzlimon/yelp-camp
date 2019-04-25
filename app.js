@@ -17,8 +17,19 @@ var commentRoutes = require("./routes/comments"),
     campgroundRoutes = require("./routes/campgrounds"),
     indexRoutes = require("./routes/index");
 
-// connecting mongoose and create a db
-mongoose.connect('mongodb://localhost:27017/yelp_camp', {
+// connecting mongoose and create a db - local mongoDB
+// mongoose.connect('mongodb://localhost:27017/yelp_camp', {
+//     useNewUrlParser: true
+// });
+// mongoDB atlas connection
+// mongoose.connect('mongodb+srv://kzlimon-yelpcamp:oREtnRFhxCu6jzhk@yelpcamp-6winw.mongodb.net/yelp_camp?retryWrites=true', {
+//     useNewUrlParser: true
+// });
+
+// DATABSE CONNECTION IN BOTH LOCAL AND HEROKU
+//LCOAL
+var url = process.env.DATABASEURL || "mongodb://localhost:27017/yelp_camp"
+mongoose.connect(url, {
     useNewUrlParser: true
 });
 
@@ -60,6 +71,7 @@ app.use(require("express-session")({
     resave: false,
     saveUninitialized: false
 }));
+app.locals.moment = require('moment');
 app.use(passport.initialize());
 app.use(passport.session());
 passport.use(new LocalStrategy(User.authenticate()));
@@ -81,6 +93,13 @@ app.use("/campgrounds/:id/comments", commentRoutes);
 
 
 // =============== SERVER START ====================
-app.listen(3000, function (req, res) {
-    console.log("Started");
-});
+// app.listen(3000, function (req, res) {
+//     console.log("Started");
+// });
+
+
+
+// use port 3000 unless there exists a preconfigured port
+var port = process.env.PORT || 3000;
+
+app.listen(port);

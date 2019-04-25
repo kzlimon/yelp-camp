@@ -1,13 +1,22 @@
 <% include ./partials/header %>
 
-
-<h1>register page</h1>
-
-<form action="/register" method="POST">
-    <input type="text" name="username" placeholder="username">
-    <input type="password" name="password" placeholder="password">
-    <button>SIGN UP</button>
-</form>
+<div class="row">
+    <h1 style="text-align: center">Sign up to YelpCamp</h1>
+    <div style="width: 35%; margin: 40px auto;">
+        <form action="/register" method="post">
+            <div class="form-group">
+                <input class="form-control" type="text" name="username" placeholder="Username">
+            </div>
+            <div class="form-group">
+                <input class="form-control" type="password" name="password" placeholder="Password">
+            </div>
+            <div class="form-group">
+                <button class="btn btn-lg btn-primary btn-block">Sign Up</button>
+            </div>
+        </form>
+        <p>Already have an account? <a href="/login">Login</a></p>
+    </div>
+</div>
 
 
 <% include ./partials/footer %>
